@@ -7,7 +7,12 @@ import { BadRequestException } from '@nestjs/common';
 describe('BooksController', () => {
   let controller: BooksController;
   let service: BooksService;
-  const bookName = 'Test Book';
+  const mockBook = {
+    name: 'Rich dad poor dad',
+    author: `Robert Kiyosaki`,
+    publishYear: 2016,
+    price: 80.8,
+  };
   const id = `123e4567-e89b-12d3-a456-426614174000`;
 
   beforeEach(async () => {
@@ -35,24 +40,27 @@ describe('BooksController', () => {
   });
 
   it('should add a book successfully', () => {
-    const book: Book = { id, name: bookName };
+    const book: Book = { id, ...mockBook };
 
-    jest.spyOn(service, 'create').mockReturnValue(book);
+    jest.spyOn(service, 'create').mockReturnValue({
+      Message: `Book added successfully.`,
+      book,
+    });
 
-    const result = controller.create(bookName);
+    const result = controller.create(mockBook);
 
     expect(result).toEqual({
       Message: `Book added successfully.`,
       book,
     });
 
-    expect(service.create).toHaveBeenCalledWith(bookName);
+    expect(service.create).toHaveBeenCalledWith(mockBook);
   });
 
   it('should return all books', () => {
     const books: Book[] = [
-      { id: id + `1`, name: bookName + `1` },
-      { id: id + `2`, name: bookName + `2` },
+      { ...mockBook, id: id + `1`, name: mockBook.name + `1` },
+      { ...mockBook, id: id + `2`, name: mockBook.name + `2` },
     ];
 
     jest.spyOn(service, 'findAll').mockReturnValue(books);
@@ -64,7 +72,7 @@ describe('BooksController', () => {
   });
 
   it('should return a book by ID', () => {
-    const book: Book = { id, name: bookName };
+    const book: Book = { id, ...mockBook };
 
     jest.spyOn(service, 'findOne').mockReturnValue(book);
 
