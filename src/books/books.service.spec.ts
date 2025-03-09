@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BooksService } from './books.service';
 import { v4 as uuid } from 'uuid';
-import { Book } from './entities/book.entity';
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { FilterBooksDto } from './dto/filter-books.dto';
+import { mockBooksArr } from './utils/mockBooksArr';
 
 jest.mock('uuid');
 (uuid as jest.Mock).mockReturnValue('mocked-uuid');
@@ -10,10 +11,10 @@ jest.mock('uuid');
 describe('BooksService', () => {
   let service: BooksService;
   const mockBook = {
-    name: 'Rich dad poor dad',
-    author: `Robert Kiyosaki`,
-    publishYear: 2016,
-    price: 80.8,
+    name: `Harry Potter`,
+    author: `J.K. Rowling`,
+    publishYear: 1997,
+    price: 29.99,
   };
 
   beforeEach(async () => {
@@ -32,7 +33,7 @@ describe('BooksService', () => {
     const result = service.create(mockBook);
     expect(result).toEqual({
       Message: `Book added successfully.`,
-      book: { id: 'mocked-uuid', ...mockBook },
+      book: { ...mockBook, id: 'mocked-uuid' },
     });
     expect(service['books']).toHaveLength(1);
   });
@@ -40,6 +41,20 @@ describe('BooksService', () => {
   it('should throw an error when creating a book that already exists', () => {
     service.create(mockBook);
     expect(() => service.create(mockBook)).toThrow(ConflictException);
+  });
+
+  it('should filter books by year range (minYear and maxYear)', () => {
+    service['books'] = mockBooksArr;
+    const filterDto: FilterBooksDto = { minYear: 1940, maxYear: 1970 };
+    const result = service.filterBooks(filterDto);
+    expect(result).toEqual([mockBooksArr[2], mockBooksArr[3]]);
+  });
+
+  it('should filter books by partial name and author', () => {
+    service['books'] = mockBooksArr;
+    const filterDto: FilterBooksDto = { name: 'Potter', author: 'Row' };
+    const result = service.filterBooks(filterDto);
+    expect(result).toEqual([mockBooksArr[0]]);
   });
 
   it('should remove a book successfully', () => {

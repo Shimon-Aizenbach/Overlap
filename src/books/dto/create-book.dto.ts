@@ -8,17 +8,17 @@ import {
 
 export class CreateBookDto {
   @IsString()
-  @IsNotEmpty({ message: 'Book name cannot be empty' })
+  @IsNotEmpty()
   name: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Author cannot be empty' })
+  @IsNotEmpty()
   author: string;
 
-  @IsInt({ message: 'Year must be an integer' })
+  @IsInt()
   publishYear: number;
 
   @IsNumber()
-  @IsPositive({ message: 'Price must be positive' })
+  @IsPositive()
   price: number;
 }

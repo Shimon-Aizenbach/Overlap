@@ -7,6 +7,7 @@ import { Book } from './entities/book.entity';
 import { v4 as uuid } from 'uuid';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { FilterBooksDto } from './dto/filter-books.dto';
 
 @Injectable()
 export class BooksService {
@@ -41,11 +42,31 @@ export class BooksService {
     throw new NotFoundException(`Book by ID: ${id} not found.`);
   }
 
+  filterBooks(filterDto: FilterBooksDto) {
+    const { minPrice, maxPrice, minYear, maxYear, name, author } = filterDto;
+
+    if (!minPrice && !maxPrice && !minYear && !maxYear && !name && !author)
+      return this.books;
+
+    return this.books.filter((book) => {
+      return (
+        (!minPrice || book.price >= minPrice) &&
+        (!maxPrice || book.price <= maxPrice) &&
+        (!minYear || book.publishYear >= minYear) &&
+        (!maxYear || book.publishYear <= maxYear) &&
+        (!name || book.name.toLowerCase().includes(name.toLowerCase())) &&
+        (!author || book.author.toLowerCase().includes(author.toLowerCase()))
+      );
+    });
+  }
+
   update(id: string, updateBookDto: UpdateBookDto) {
     const bookIndex = this.books.findIndex((book) => book.id === id);
 
     if (bookIndex === -1)
-      throw new NotFoundException(`Updating failed, Book by ID: ${id} not found.`);
+      throw new NotFoundException(
+        `Updating failed, Book by ID: ${id} not found.`,
+      );
 
     this.books[bookIndex] = { ...this.books[bookIndex], ...updateBookDto };
 

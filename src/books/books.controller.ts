@@ -7,10 +7,12 @@ import {
   Delete,
   BadRequestException,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { FilterBooksDto } from './dto/filter-books.dto';
 
 @Controller('books')
 export class BooksController {
@@ -24,6 +26,11 @@ export class BooksController {
   @Get()
   findAll() {
     return this.booksService.findAll();
+  }
+
+  @Get('filter')
+  filterBooks(@Query() filterDto: FilterBooksDto) {
+    return this.booksService.filterBooks(filterDto);
   }
 
   @Get(':id')
